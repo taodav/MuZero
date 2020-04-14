@@ -4,6 +4,7 @@ from typing import Optional, Dict
 import tensorflow_core as tf
 
 from game.cartpole import CartPole
+from game.acrobot import Acrobot
 from game.game import AbstractGame
 from networks.cartpole_network import CartPoleNetwork
 from networks.network import BaseNetwork, UniformNetwork
@@ -99,6 +100,7 @@ def make_cartpole_config() -> MuZeroConfig:
     return MuZeroConfig(
         game=CartPole,
         nb_training_loop=50,
+        # nb_episodes is number of concurrent games collecting experience
         nb_episodes=20,
         nb_epochs=20,
         network_args={'action_size': 2,
@@ -117,6 +119,30 @@ def make_cartpole_config() -> MuZeroConfig:
         lr=0.05)
 
 
+def make_acrobot_config() -> MuZeroConfig:
+    def visit_softmax_temperature(num_moves, training_steps):
+        return 1.0
+
+    return MuZeroConfig(
+        game=Acrobot,
+        nb_training_loop=50,
+        # nb_episodes is number of concurrent games collecting experience
+        nb_episodes=20,
+        nb_epochs=20,
+        network_args={'action_size': 2,
+                      'state_size': 4,
+                      'representation_size': 4,
+                      'max_value': 500},
+        network=CartPoleNetwork,
+        action_space_size=2,
+        max_moves=1000,
+        discount=0.99,
+        dirichlet_alpha=0.25,
+        num_simulations=11,  # Odd number perform better in eval mode
+        batch_size=512,
+        td_steps=10,
+        visit_softmax_temperature_fn=visit_softmax_temperature,
+        lr=0.05)
 """
 Legacy configs from the DeepMind's pseudocode.
 

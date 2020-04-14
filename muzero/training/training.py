@@ -14,7 +14,8 @@ def train_network(config: MuZeroConfig, storage: SharedStorage, replay_buffer: R
     network = storage.current_network
     optimizer = storage.optimizer
 
-    for _ in range(epochs):
+    for i in range(epochs):
+        print(f"Running epoch {i}")
         batch = replay_buffer.sample_batch(config.num_unroll_steps, config.td_steps)
         update_weights(optimizer, network, batch)
         storage.save_network(network.training_steps, network)
